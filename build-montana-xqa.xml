@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Ant build file based on Eclipse auto-generated file.
+     
+Modifications (c) 2013, 2014 Montana Medialab Limited (info@montanamedialab.com)
+
+See http://montanamedialab.com/ for interesting resources on automanted CI / CD eXtremeQualityAssurance (XQA) for commerce, devops, cloud
+-->
+
+<project basedir="." default="build" name="montana-xqa-pub" xmlns:jacoco="antlib:org.jacoco.ant">
+	<property environment="env" />
+	<property name="junit.output.dir" value="junit" />
+	<property name="analysis.dir" value="static-analysis" />
+	<property name="coverage.dir" location="code-coverage" />
+	<property name="coverage-raw-data" value="${coverage.dir}/coverage-raw-data" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.5" />
+	<property name="source" value="1.5" />
+	<path id="JUnit 4.libraryclasspath">
+		<pathelement location="lib-dist/junit.jar" />
+		<pathelement location="lib-dist/org.hamcrest.core_1.3.0.v201303031735.jar" />
+	</path>
+	<path id="rotana.classpath">
+		<pathelement location="bin" />
+		<path refid="JUnit 4.libraryclasspath" />
+	</path>
+
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath>
+			<fileset dir="lib-dist/jacoco-eclemma">
+				<include name="*.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
+
+
+	<target name="init">
+		<mkdir dir="bin" />
+		<mkdir dir="${analysis.dir}" />
+		<mkdir dir="${coverage.dir}" />
+		<mkdir dir="${junit.output.dir}" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+				<exclude name="test/" />
+				<exclude name="main/" />
+			</fileset>
+		</copy>
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src/test">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src/main">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="clean">
+		<delete dir="bin" />
+		<delete dir="${junit.output.dir}" />
+		<delete dir="${analysis.dir}" />
+		<delete dir="${coverage.dir}" />
+	</target>
+
+
+	<target depends="clean" name="cleanall" />
+	<target depends="build-subprojects,build-project" name="build" />
+	<target name="build-subprojects" />
+
+
+	<target depends="init" name="build-project">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+			<src path="src" />
+			<src path="src/main" />
+			<src path="src/test" />
+			<exclude name="test/" />
+			<exclude name="main/" />
+			<classpath refid="rotana.classpath" />
+		</javac>
+	</target>
+
+
+	<target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects" />
+
+
+	<target description="Run project unit tests and coverage report" name="all-tests" depends="build">
+		<mkdir dir="${junit.output.dir}" />
+		<jacoco:coverage destfile="${coverage-raw-data}" excludes="com.montanamedialab.util.ConversationalTimeUtilTest">
+			<junit fork="yes" printsummary="withOutAndErr">
+				<formatter type="xml" />
+				<test name="com.montanamedialab.util.ConversationalTimeUtilTest" todir="${junit.output.dir}" />
+				<classpath refid="rotana.classpath" />
+			</junit>
+		</jacoco:coverage>
+
+
+		<junitreport todir="${junit.output.dir}">
+			<fileset dir="${junit.output.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${junit.output.dir}" />
+		</junitreport>
+		<jacoco:report>
+			<executiondata>
+				<file file="${coverage-raw-data}" />
+			</executiondata>
+			<!--  the class files and optional source files ...  -->
+			<structure name="Montana Medialab XQA Coverage Test: ${ant.project.name}">
+				<classfiles>
+					<fileset dir="bin">
+						<exclude name="**/*Test*.class" />
+					</fileset>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="src/test" />
+					<fileset dir="src/main" />
+				</sourcefiles>
+			</structure>
+			<!--  to produce reports in different formats.  -->
+			<html destdir="${coverage.dir}" />
+		</jacoco:report>
+
+	</target>
+
+
+	<target description="Run automatic QA static analysis checks" name="static-analysis" depends="build, checkstyle, pmd, findbugs" />
+
+	<taskdef classpath="lib-dist/checkstyle-5.7-all.jar" resource="checkstyletask.properties" />
+	<target name="checkstyle" depends="build">
+		<checkstyle config="montana_checkstyle_checks.xml">
+			<fileset dir="src/main" includes="**/*.java" />
+			<formatter type="xml" toFile="${analysis.dir}/checkstyle_report.xml" />
+		</checkstyle>
+	</target>
+
+
+	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+		<classpath>
+			<fileset dir="lib-dist/pmd/">
+				<include name="*.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
+	<target name="pmd" depends="build">
+		<pmd shortFilenames="true">
+			<sourceLanguage name="java" version="1.5" />
+			<ruleset>rulesets/java/design.xml</ruleset>
+			<ruleset>java-basic</ruleset>
+			<formatter type="html" toFile="${analysis.dir}/pmd_report.html">
+				<param name="linkPrefix" value="src/main" />
+			</formatter>
+			<fileset dir="src/main" />
+		</pmd>
+	</target>
+
+
+	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+		<classpath>
+			<fileset dir="lib-dist/findbugs/lib">
+				<include name="*.jar" />
+			</fileset>
+		</classpath>
+	</taskdef>
+	<target name="findbugs" depends="build">
+		<findbugs effort="max" home="lib-dist/findbugs" output="html" outputFile="${analysis.dir}/findbugs-report.html">
+			<sourcePath path="src/main" />
+			<class location="bin" />
+			<auxClasspath path="lib-dist/junit.jar" />
+		</findbugs>
+	</target>
+
+</project>
