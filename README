@@ -19,7 +19,7 @@ Compiles project into ./bin
 
 
 $ ant -f  build-montana-xqa.xml all-tests
-Rus unit tests, and code-coverage to validate test thoroughness. Results stored in ./junit, ./code-coverage
+Runs unit tests, and code-coverage to validate test thoroughness. Results stored in ./junit, ./code-coverage
 
 
 $ ant -f  build-montana-xqa.xml static-analysis
