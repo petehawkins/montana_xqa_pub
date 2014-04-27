@@ -10,18 +10,18 @@ Ant build
 Please review the Ant build file for all possible targets. Typical use cases:
 
 
-$ ant -f build-montana.xml clean
+$ ant -f  build-montana-xqa.xml clean
 Removes built artifacts
 
 
-$ ant -f build-montana.xml build
+$ ant -f  build-montana-xqa.xml build
 Compiles project into ./bin
 
 
-$ ant -f build-montana.xml all-tests
+$ ant -f  build-montana-xqa.xml all-tests
 Rus unit tests, and code-coverage to validate test thoroughness. Results stored in ./junit, ./code-coverage
 
 
-$ ant -f build-montana.xml static-analysis
+$ ant -f  build-montana-xqa.xml static-analysis
 Determine code-correctness using OSS tooling, specifically PMD, CheckStyle, FindBugs. Results stored in ./static-analysis
 
