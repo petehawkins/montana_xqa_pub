@@ -38,4 +38,3 @@ Runs unit tests, and code-coverage to validate test thoroughness. Results stored
 
 $ ant -f  build-montana-xqa.xml static-analysis
 Determine code-correctness using OSS tooling, specifically PMD, CheckStyle, FindBugs. Results stored in ./static-analysis
-
