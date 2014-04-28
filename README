@@ -14,7 +14,7 @@ For example:
 00:05 is "five past midnight"
 00:07 is "just after five past midnight"
 
-The sample code is based on real-world examples of similar utility code, and also demonstrates a number of  Object Oriented design patterns, without overkill. The code is supported by junit tests, code coverage to validate reach of the unit tests, and a number of Open Source staic analysis scans to verify code correctness. 
+The sample code is based on real-world examples of similar utility code, and also demonstrates a number of Object Oriented design patterns, without overkill. The code is supported by junit tests, code coverage to validate reach of the unit tests, and a number of Open Source staic analysis scans to verify code correctness. 
 
 
 Ant build
